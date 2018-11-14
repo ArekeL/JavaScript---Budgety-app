@@ -173,7 +173,26 @@ var UIController = (function(){
       expensesLabel: '.budget__expenses--value',
       percentageLabel: '.budget__expenses--percentage',
       container: '.container',
-      expensesPercLabel: 'item__percentage'
+      expensesPercLabel: '.item__percentage'
+  };
+
+  var formatNumber = function(num, type) {
+    var numSplit, int, dec;
+
+    num = Math.abs(num);
+    num = num.toFixed(2);
+
+    numSplit = num.split('_');
+
+    int = numSplit[0];
+
+    if (int.length > 3) {
+
+      int = int.substr(0, int.length - 3) + ','  + int.substr(int.length - 3, 3);
+    }
+    dec = numSplit[1];
+
+        return (type === 'exp' ? sign = '-' : sign = '+') + ' ' + int + dec;
   };
 
   return {
@@ -195,14 +214,13 @@ var UIController = (function(){
         } else if (type === 'exp') {
 
           element = DOMstrings.expensesContainer;
-
           html = '<div class="item clearfix" id="exp-%id%"> <div class="item__description">%description%</div> <div class="right clearfix"> <div class="item__value">%value%</div> <div class="item__percentage">21%</div> <div class="item__delete"> <button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button> </div> </div> </div>';
         }
 
         // Replace the placeholder text wich some actual data
         newHtml = html.replace('%id%', obj.id);
         newHtml = newHtml.replace('%description%', obj.description);
-        newHtml = newHtml.replace('%value%', obj.value);
+        newHtml = newHtml.replace('%value%', formatNumber(obj.value, type));
 //}
         // INSERT THE html into the DOM
         document.querySelector(element).insertAdjacentHTML('beforeend', newHtml);
@@ -238,7 +256,7 @@ var UIController = (function(){
       document.querySelector(DOMstrings.expensesLabel).textContent = obj.totalExp;
 
       if (obj.percentage > 0) {
-        document.querySelector(DOMstrings.percentageLabel).textContent = obj.percentage + ' %';
+        document.querySelector(DOMstrings.percentageLabel).textContent = obj.percentage + '%';
       } else {
         document.querySelector(DOMstrings.percentageLabel).textContent = '---';
 
@@ -256,13 +274,15 @@ var UIController = (function(){
 
       nodeListForEach(fields, function(current, index) {
         if (percentages[index] > 0) {
-                  current.textContent =  percentages[index] + ' %';
+                  current.textContent =  percentages[index] + '%';
         }else {
                   current.textContent =  '---';
         }
       });
 
     },
+
+
 
     getDOMstrings: function() {
       return DOMstrings;
@@ -280,7 +300,7 @@ var controller = (function(budgetCtrl, UICtrl){
 
     document.querySelector(DOM.inputBtn).addEventListener('click', ctrlAddItem);
 
-    document.addEventListener('keypress', function(event){
+    document.addEventListener('keypress', function(event) {
 
        if(event.keyCode === 13 || event.which === 13) {
          ctrlAddItem();
